@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block page_title %}
+    {% if equipe.pk %}
+        Atualizar informações do equipe
+    {% else %}
+        Cadastrar novo membro da equipe
+    {% endif %}
+{% endblock page_title %}
+
+{% block content %}
+    {% if equipe.pk %}
+        <h1>Atualizar informações</h1>
+    {% else %}
+        <h1>Novo membro da equipe</h1>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+        {{ form|crispy }}
+
+        <button type="submit" class="btn btn-primary">Salvar</button>
+        <a href="{% url 'equipe_list' %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+
+{% endblock %}

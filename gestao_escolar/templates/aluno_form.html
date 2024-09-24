@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block page_title %}
+    {% if aluno.pk %}
+        Atualizar informações do aluno
+    {% else %}
+        Cadastrar novo aluno
+    {% endif %}
+{% endblock page_title %}
+
+{% block content %}
+    {% if aluno.pk %}
+        <h1>Atualizar informações</h1>
+    {% else %}
+        <h1>Novo aluno</h1>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+        {{ form|crispy }}
+
+        <button type="submit" class="btn btn-primary">Salvar</button>
+        <a href="{% url 'alunos_list' %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+
+    <!-- Carregando o arquivo JavaScript correto -->
+    <script src="{% static 'js/cep_autocomplete.js' %}"></script>
+
+{% endblock %}

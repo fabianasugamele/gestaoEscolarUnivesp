@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Lista de Equipe{% endblock page_title %}
+
+{% block content %}
+<h1>Lista de Equipe</h1>
+
+<!-- Botão de Cadastrar Equipe -->
+<div class="button-container">
+    <a href="{% url "equipe_create" %}" class="btn btn-primary">Cadastrar Equipe</a>
+</div>
+
+
+<!-- Adiciona uma div para centralizar a tabela -->
+<div class="table-container">
+    <table id="equipeTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Função</th>
+                <th>Telefone</th>
+                <th>Email</th>
+                <th>Status</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for equipe in equipe %}
+            <tr>
+                <td>{{ equipe.id_num }}</td>
+                <td>{{ equipe.nome_profissional }}</td>
+                <td>{{ equipe.funcao }}</td>
+                <td>{{ equipe.telefone }}</td>
+                <td>{{ equipe.email }}</td>
+                <td>{{ equipe.status }}</td>
+                <td><a href="{% url 'equipe_info' equipe.pk %}" class="info-btn">Ver cadastro</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    // Função para ajustar os estilos da tabela
+    document.addEventListener('DOMContentLoaded', function() {
+        const table = document.getElementById('equipeTable');
+        const nomeColumn = table.querySelectorAll('thead th:nth-child(2), tbody td:nth-child(2)');
+
+        // Faz a tabela ocupar 100% da largura da página
+        table.style.width = '100%';
+        table.style.marginLeft = '0';  // Alinha a tabela à esquerda
+
+        // Ajusta o espaçamento entre o título e a tabela
+        const title = document.querySelector('h1');
+        title.style.marginBottom = '30px';  // Aumenta o espaço entre o título e a tabela
+
+        // Define a largura das colunas: a coluna "Nome" maior, as outras com largura uniforme
+        nomeEmailColumns.forEach(cell => {
+            cell.style.width = '25%';  // Aumenta a largura da coluna "Nome" e "Email"
+        });
+
+        const otherColumns = table.querySelectorAll('thead th:not(:nth-child(2)), tbody td:not(:nth-child(2))');
+        otherColumns.forEach(cell => {
+            cell.style.width = '12.5%';  // Ajusta as outras colunas com a mesma largura
+        });
+
+        // Adiciona padding e centraliza o texto nas células
+        const cells = table.querySelectorAll('th, td');
+        cells.forEach(cell => {
+            cell.style.padding = '10px';
+            cell.style.textAlign = 'center';
+        });
+    });
+</script>
+
+<style>
+    .table-container {
+        width: 100%; /* A tabela ocupa toda a largura da página */
+        margin: 0 auto; /* Centraliza o contêiner */
+    }
+
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        table-layout: fixed; /* Garante que as colunas respeitem a largura definida */
+    }
+
+    th, td {
+        border: 1px solid #ddd;
+        padding: 10px;
+    }
+
+    th {
+        background-color: #f2f2f2;
+    }
+
+    .info-btn {
+        background-color: #4CAF50;
+        color: white;
+        padding: 5px 10px;
+        text-decoration: none; /* Remove o sublinhado */
+        border: none;
+        cursor: pointer;
+        border-radius: 4px;
+        display: inline-block;
+    }
+
+    .info-btn:hover {
+        background-color: #45a049;
+    }
+
+    .info-btn:hover {
+        background-color: #45a049;
+    }
+
+    .cadastrar-btn {
+        background-color: #007bff;
+        color: white;
+        padding: 10px 20px;
+        font-size: 14px;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        border-radius: 4px;
+        display: inline-block;
+    }
+
+    .cadastrar-btn:hover {
+        background-color: #0069d9;
+    }
+
+    .button-container {
+        text-align: left; /* Alinha o botão à esquerda */
+        margin-bottom: 40px; /* Aumenta o espaço entre o botão e a tabela */
+    }
+
+</style>
+
+{% endblock content %}
+
