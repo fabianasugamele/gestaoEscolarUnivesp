@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_title %}
+    Info. Prof.
+{% endblock page_title %}
+
+{% block content %}
+    <h1>Informações: {{ professor.nome }}</h1>
+
+    <p><strong>ID:</strong> {{ professor.id_num }}</p>
+    <p><strong>Sexo:</strong> {{ professor.sexo }}</p>
+    <p><strong>e-mail:</strong> {{ professor.email }}</p>
+    <p><strong>Telefone:</strong> {{ professor.telefone }}</p>
+    <p><strong>Data de Início:</strong> {{ professor.data_inicio }}</p>
+    {% if professor.data_saida %}
+    <p><strong>Data de Saída:</strong> {{ professor.data_saida }}</p>
+    {% endif %}
+
+    <hr>
+
+    <!-- Tabela de Disciplinas -->
+    <h2>Disciplinas</h2>
+
+    {% if professor.disciplinas.all %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Código da Disciplina</th>
+                    <th>Nome da Disciplina</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for disciplina in professor.disciplinas.all %}
+                    <tr>
+                        <td>{{ disciplina.codigo_disciplina }}</td>
+                        <td>{{ disciplina.nome_disciplina }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>O professor não está cadastrado em nenhuma disciplina.</p>
+    {% endif %}
+
+    <hr>
+
+    <!-- Tabela de Turmas -->
+    <h2>Turmas</h2>
+
+    {% if professor.turmas.all %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Nome da Turma</th>
+                    <th>Ano</th>
+                    <th>Professor(es)</th>
+                    <th>Disciplinas</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for turma in professor.turmas.all %}
+                    <tr>
+                        <td>{{ turma.nome_turma }}</td>
+                        <td>{{ turma.ano_turma }}</td>
+                        <td>
+                            {% for professor in turma.professores.all %}
+                                {{ professor.nome }}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% for disciplina in turma.disciplinas.all %}
+                                {{ disciplina.nome_disciplina }}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>O professor não está cadastrado em nenhuma turma.</p>
+    {% endif %}
+
+    <hr>
+
+    <!-- Tabela de Anexos -->
+    <h2>Anexos</h2>
+
+    {% if anexos %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Tipo de Documento</th>
+                    <th>Arquivo</th>
+                    <th>Download</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for anexo in anexos %}
+                    <tr>
+                        <td>{{ anexo.tipo_documento }}</td>
+                        <td>{{ anexo.arquivo.name }}</td>
+                        <td><a href="{{ anexo.arquivo.url }}" download>Download</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Nenhum anexo disponível para este professor.</p>
+    {% endif %}
+
+    <a href="{% url 'professor_upload_anexos' professor.pk %}" class="btn btn-primary">Atualizar Anexos</a>
+    <a href="{% url 'professor_update' professor.pk %}" class="btn btn-warning">Atualizar Cadastro</a>
+    <a href="{% url 'professores_list' %}" class="btn btn-secondary">Voltar para a Lista de Professores</a>
+
+{% endblock %}
+

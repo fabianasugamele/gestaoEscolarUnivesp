@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block page_title %}
+    {% if professor.pk %}
+        Atualizar informações do professor
+    {% else %}
+        Cadastrar novo professor
+    {% endif %}
+{% endblock page_title %}
+
+{% block content %}
+    {% if professor.pk %}
+        <h1>Atualizar informações</h1>
+    {% else %}
+        <h1>Novo professor</h1>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+        {{ form|crispy }}
+
+        <button type="submit" class="btn btn-primary">Salvar</button>
+        <a href="{% url 'professores_list' %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+
+{% endblock %}
