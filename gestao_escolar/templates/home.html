@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Página Inicial{% endblock page_title %}
+
+{% block content %}
+  <div class="text-center">
+    <h1>Olá, bem vindo ao sistema de Gestão Escolar da EMEF Constelação do Índio.</h1>
+
+    <!-- Espaçamento maior entre o título e os botões -->
+    <div class="my-5"></div>
+
+    <div class="container">
+      <div class="row justify-content-center mb-4">
+        <!-- Botões de Equipe, Professores e Alunos (ocupando a mesma largura) -->
+        <div class="col-12 col-md-4 mb-2">
+          <button class="btn btn-primary w-100 p-4" style="height: 120px;" onclick="window.location.href='{% url "equipe_list" %}'">
+            <i class="bi bi-people-fill" style="font-size: 2rem;"></i><br>Equipe
+          </button>
+        </div>
+        <div class="col-12 col-md-4 mb-2">
+          <button class="btn btn-primary w-100 p-4" style="height: 120px;" onclick="window.location.href='{% url "professores_list" %}'">
+            <i class="bi bi-person-badge-fill" style="font-size: 2rem;"></i><br>Professores
+          </button>
+        </div>
+        <div class="col-12 col-md-4 mb-2">
+          <button class="btn btn-primary w-100 p-4" style="height: 120px;" onclick="window.location.href='{% url "alunos_list" %}'">
+            <i class="bi bi-person-lines-fill" style="font-size: 2rem;"></i><br>Alunos
+          </button>
+        </div>
+      </div>
+
+      <div class="row justify-content-center">
+        <!-- Botões de Turmas e Disciplinas (ocupando a mesma largura dos de cima) -->
+        <div class="col-12 col-md-4 mb-2">
+          <button class="btn btn-primary w-100 p-4" style="height: 120px;" onclick="window.location.href='#'">
+            <i class="bi bi-journal" style="font-size: 2rem;"></i><br>Turmas
+          </button>
+        </div>
+        <div class="col-12 col-md-4 mb-2">
+          <button class="btn btn-primary w-100 p-4" style="height: 120px;" onclick="window.location.href='#'">
+            <i class="bi bi-book-fill" style="font-size: 2rem;"></i><br>Disciplinas
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock content %}

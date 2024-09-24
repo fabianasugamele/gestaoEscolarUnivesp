@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_title %}
+    Info. Equipe
+{% endblock page_title %}
+
+{% block content %}
+    <h1>Informações: {{ equipe.nome_profissional }}</h1>
+
+    <p><strong>ID:</strong> {{ equipe.id_num }}</p>
+    <p><strong>Sexo:</strong> {{ equipe.sexo }}</p>
+    <p><strong>Função:</strong> {{ equipe.funcao }}</p>
+    <p><strong>e-mail:</strong> {{ equipe.email }}</p>
+    <p><strong>Telefone:</strong> {{ equipe.telefone }}</p>
+    <p><strong>Data de Início:</strong> {{ equipe.data_inicio }}</p>
+    {% if equipe.data_saida %}
+    <p><strong>Data de Saída:</strong> {{ equipe.data_saida }}</p>
+    {% endif %}
+
+    <hr>
+
+    <!-- Tabela de Anexos -->
+    <h2>Anexos</h2>
+
+    {% if anexos %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Tipo de Documento</th>
+                    <th>Arquivo</th>
+                    <th>Download</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for anexo in anexos %}
+                    <tr>
+                        <td>{{ anexo.tipo_documento }}</td>
+                        <td>{{ anexo.arquivo.name }}</td>
+                        <td><a href="{{ anexo.arquivo.url }}" download>Download</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Nenhum anexo disponível para este funcionário.</p>
+    {% endif %}
+
+    <a href="{% url 'equipe_upload_anexos' equipe.pk %}" class="btn btn-primary">Atualizar Anexos</a>
+    <a href="{% url 'equipe_update' equipe.pk %}" class="btn btn-warning">Atualizar Cadastro</a>
+    <a href="{% url 'equipe_list' %}" class="btn btn-secondary">Voltar para a Lista de Equipe</a>
+
+{% endblock %}
+
