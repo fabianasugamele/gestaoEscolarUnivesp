@@ -1,10 +1,12 @@
-from django.shortcuts import render, get_object_or_404,redirect
+from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import TemplateView, ListView, CreateView, UpdateView, DeleteView, View
 from django.urls import reverse_lazy, reverse
 from django.contrib import messages
-from django.views.generic.edit import FormView
-from .models import Aluno, AnexoAluno, Professor, AnexoProfessor, Equipe, AnexoEquipe, Disciplina
-from .forms import AnexoForm
+from django.views.generic.edit import FormView, CreateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import JsonResponse
+from .models import Aluno, AnexoAluno, Professor, AnexoProfessor, Equipe, AnexoEquipe, Disciplina, Atendimento, AnexoDisciplina, Turma
+from .forms import AnexoForm, TurmaForm
 
 # View da home -----------------------------------------------------------------
 
@@ -13,22 +15,46 @@ class HomeView(TemplateView):
 
 # View generica de uploads de anexos -------------------------------------------
 
+TIPOS_DOCUMENTO_CHOICES = [
+    ('Documento de identificação', 'Documento de identificação'),
+    ('Comprovante de residência', 'Comprovante de residência'),
+    ('Laudo Médico', 'Laudo Médico'),
+    ('Outro', 'Outro')
+]
+
+TIPO_DOCUMENTO_DISCIPLINA_CHOICES = [
+    ('Plano de Ensino', 'Plano de Ensino'),
+    ('Plano de Aula', 'Plano de Aula'),
+    ('Diário de Classe', 'Diário de Classe'),
+    ('Lista de Lista de Frequência', 'Lista de Frequência'),
+    ('Notas','Notas'),
+    ('Outro','Outro')
+]
+
 class UploadAnexosView(FormView):
     template_name = 'object_upload_anexos_form.html'
     form_class = AnexoForm
     model = None  # Será definido nas subclasses
-    related_name = 'anexos'  # Nome do campo relacionado para anexos
+    related_name = 'anexos'
 
     def get_object(self):
         return self.model.objects.get(pk=self.kwargs['pk'])
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
         obj = self.get_object()
-        context['object'] = obj
-        context['anexos'] = getattr(obj, self.related_name).all()
-        context['object_url_name'] = f'{self.model.__name__.lower()}_info'
-        return context
+
+        # Ajuste as escolhas do campo `tipo_documento` com base no modelo
+        if isinstance(obj, Aluno):
+            form.fields['tipo_documento'].choices = TIPOS_DOCUMENTO_CHOICES
+        elif isinstance(obj, Disciplina):
+            form.fields['tipo_documento'].choices = TIPO_DOCUMENTO_DISCIPLINA_CHOICES
+        elif isinstance(obj, Professor):
+            form.fields['tipo_documento'].choices = TIPOS_DOCUMENTO_CHOICES
+        elif isinstance(obj, Equipe):
+            form.fields['tipo_documento'].choices = TIPOS_DOCUMENTO_CHOICES
+
+        return form
 
     def form_valid(self, form):
         arquivos = self.request.FILES.getlist('arquivos')
@@ -39,14 +65,43 @@ class UploadAnexosView(FormView):
             if isinstance(obj, Aluno):
                 AnexoAluno.objects.create(aluno=obj, arquivo=arquivo, tipo_documento=tipo_documento)
             elif isinstance(obj, Professor):
-                AnexoProfessor.objects.create(professor=obj, arquivo=arquivo, tipo_documento=tipo_documento)  # Aqui o campo correto é 'professor'
+                AnexoProfessor.objects.create(professor=obj, arquivo=arquivo, tipo_documento=tipo_documento)
             elif isinstance(obj, Equipe):
                 AnexoEquipe.objects.create(equipe=obj, arquivo=arquivo, tipo_documento=tipo_documento)
+            elif isinstance(obj, Disciplina):
+                AnexoDisciplina.objects.create(disciplina=obj, arquivo=arquivo, tipo_documento=tipo_documento)
 
         return redirect(self.get_success_url())
 
     def get_success_url(self):
-        return reverse(f'{self.model.__name__.lower()}_info', kwargs={'pk': self.kwargs['pk']})
+        # Gera a URL de redirecionamento com base no nome do modelo que originou o anexo
+        if isinstance(self.get_object(), Aluno):
+            return reverse('aluno_info', kwargs={'pk': self.kwargs['pk']})
+        elif isinstance(self.get_object(), Disciplina):
+            return reverse('disciplina_info', kwargs={'pk': self.kwargs['pk']})
+        elif isinstance(self.get_object(), Professor):
+            return reverse('professor_info', kwargs={'pk': self.kwargs['pk']})
+        elif isinstance(self.get_object(), Equipe):
+            return reverse('equipe_info', kwargs={'pk': self.kwargs['pk']})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        obj = self.get_object()
+
+        # Adiciona o objeto correto ao contexto para o template renderizar o nome
+        if isinstance(obj, Aluno):
+            context['aluno'] = obj
+        elif isinstance(obj, Disciplina):
+            context['disciplina'] = obj
+        elif isinstance(obj, Professor):
+            context['professor'] = obj
+        elif isinstance(obj, Equipe):
+            context['equipe'] = obj
+
+        # Adiciona os anexos ao contexto
+        context['anexos'] = getattr(obj, self.related_name).all()
+
+        return context
 
 class ExcluirAnexoView(View):
     def post(self, request, pk):
@@ -54,8 +109,9 @@ class ExcluirAnexoView(View):
         anexo_aluno = AnexoAluno.objects.filter(pk=pk).first()
         anexo_professor = AnexoProfessor.objects.filter(pk=pk).first()
         anexo_equipe = AnexoEquipe.objects.filter(pk=pk).first()
+        anexo_disciplina = AnexoDisciplina.objects.filter(pk=pk).first()
 
-        anexo = anexo_aluno or anexo_professor or anexo_equipe
+        anexo = anexo_aluno or anexo_professor or anexo_equipe or anexo_disciplina
 
         if anexo:
             anexo.delete()
@@ -278,6 +334,50 @@ class EquipeUpdateView(UpdateView):
     success_url = reverse_lazy("equipe_list")
     template_name = "equipe_form.html"
 
+# Views da classe de Atendimento -----------------------------------------------
+
+# View para criar um atendimento
+class AtendimentoCreateView(LoginRequiredMixin, CreateView):
+    model = Atendimento
+    fields = ['data_atendimento', 'tipo_atendimento', 'descricao', 'tipo_documento', 'anexos']
+    template_name = 'atendimento_form.html'
+
+    # Função para capturar o cargo do profissional
+    def get_responsavel(self, user):
+        try:
+            # Verifica se o usuário é da equipe
+            equipe = get_object_or_404(Equipe, user=user)
+            return equipe, "Equipe", equipe.funcao  # Retorna o membro da equipe, identificação e função
+        except:
+            # Se não for da equipe, tenta como professor
+            professor = get_object_or_404(Professor, user=user)
+            return professor, "Professor", None  # Retorna o professor e a identificação
+
+    def form_valid(self, form):
+        aluno_pk = self.kwargs['pk']
+        aluno = get_object_or_404(Aluno, pk=aluno_pk)
+
+        # Utiliza a função get_responsavel para capturar o responsável e o cargo
+        responsavel, cargo, funcao = self.get_responsavel(self.request.user)
+
+        form.instance.aluno = aluno
+        form.instance.responsavel_atendimento = responsavel
+
+        # Se necessário, adicione informações de cargo ou função ao modelo
+        # Exemplo:
+        # form.instance.cargo_responsavel = cargo
+        # form.instance.funcao_responsavel = funcao
+
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['aluno'] = get_object_or_404(Aluno, pk=self.kwargs['pk'])
+        return context
+
+    def get_success_url(self):
+        return reverse('aluno_info', kwargs={'pk': self.kwargs['pk']})
+
 # Views da classe de disciplinas -----------------------------------------------
 
 # View da lista de disciplinas
@@ -290,3 +390,117 @@ class DisciplinasListView(ListView):
     def get_queryset(self):
         # Ordena as disciplinas pelo nome em ordem alfabética
         return Disciplina.objects.all().order_by('codigo_disciplina')
+
+# View para criar uma disciplina
+
+class DisciplinaCreateView(CreateView):
+    model = Disciplina
+    fields = ['codigo_disciplina', 'nome_disciplina', 'professor', 'serie', 'ano_disciplina']
+    template_name = 'disciplina_form.html'
+    success_url = reverse_lazy('disciplina_list')
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        # Filtrar apenas professores ativos (sem data de saída)
+        form.fields['professor'].queryset = Professor.objects.filter(data_saida__isnull=True)
+        return form
+
+    def form_valid(self, form):
+        messages.success(self.request, "Disciplina cadastrada com sucesso!")
+        disciplina = form.save()
+        return redirect('disciplina_upload_anexos', pk=disciplina.pk)
+
+
+# View para visualizar informações de uma disciplina
+
+class DisciplinaInfoView(View):
+    def get(self, request, *args, **kwargs):
+        disciplina = get_object_or_404(Disciplina, pk=kwargs['pk'])
+
+        # Recupera os anexos associados à disciplina
+        anexos = disciplina.anexos.all()
+
+        # Cria o contexto com o nome 'disciplina' e 'anexos'
+        context = {
+            'disciplina': disciplina,
+            'anexos': anexos
+        }
+
+        return render(request, "disciplina_info.html", context)
+
+# View para atualizar informações de uma disciplina
+
+class DisciplinaUpdateView(UpdateView):
+    model = Disciplina
+    fields = ['codigo_disciplina', 'nome_disciplina', 'professor', 'serie', 'ano_disciplina']
+    template_name = 'disciplina_form.html'
+    success_url = reverse_lazy('disciplinas_list')
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        # Filtrar apenas professores ativos (sem data de saída)
+        form.fields['professor'].queryset = Professor.objects.filter(data_saida__isnull=True)
+        return form
+
+# View para upload de anexos de disciplinas
+
+class DisciplinasAnexosView(UploadAnexosView):
+    model = Disciplina
+    related_name = 'anexos'
+
+# Views da classe turma --------------------------------------------------------
+
+# View da lista de turmas
+
+class TurmasListView(ListView):
+    model = Turma
+    template_name = 'turmas_list.html'
+    context_object_name = 'turmas'
+
+    def get_queryset(self):
+
+        return Turma.objects.all().order_by('nome_turma', 'ano_turma')
+
+# View para criar uma turma
+
+class TurmaCreateView(CreateView):
+    model = Turma
+    form_class = TurmaForm
+    template_name = 'turma_form.html'
+    success_url = reverse_lazy('turmas_list')
+
+    def form_valid(self, form):
+        # Salva a turma e atribui automaticamente os professores com base nas disciplinas
+        response = super().form_valid(form)
+        self.object.atribuir_professores() # Chama o método para associar professores
+        messages.success(self.request, "Turma criada com sucesso!")
+        return response
+
+# View para atualizar uma turma
+
+class TurmaUpdateView(UpdateView):
+    model = Turma
+    form_class = TurmaForm
+    template_name = 'turma_form.html'
+    success_url = reverse_lazy('turmas_list')
+
+    def form_valid(self, form):
+        # Salva a turma e atribui automaticamente os professores com base nas disciplinas
+        response = super().form_valid(form)
+        self.object.atribuir_professores()  # Chama o método para associar professores
+        messages.success(self.request, "Turma atualizada com sucesso!")
+        return response
+
+# View de informações da turma
+
+class TurmaInfoView(View):
+    def get(self, request, *args, **kwargs):
+        turma = get_object_or_404(Turma, pk=kwargs['pk'])
+        context = {
+            'turma': turma,
+            'alunos': turma.alunos.all(),
+            'disciplinas': turma.disciplinas.all()
+        }
+        return render(request, "turma_info.html", context)
+
+

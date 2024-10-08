@@ -6,7 +6,13 @@
 {% endblock page_title %}
 
 {% block content %}
-    <h1>Upload de Anexos: {{ aluno.nome }}</h1>
+    <h1>Upload de Anexos:
+        {% if aluno %} {{ aluno.nome }}
+        {% elif professor %} {{ professor.nome }}
+        {% elif equipe %} {{ equipe.nome }}
+        {% elif disciplina %} {{ disciplina.nome }}
+        {% endif %}
+    </h1>
 
     <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
@@ -18,14 +24,19 @@
         </div>
 
         <div class="form-group" style="margin-bottom: 20px;">
-            <label for="arquivos"  style="display: block; margin-bottom: 10px;"><p> Selecionar Anexos </p> </label>
+            <label for="arquivos" style="display: block; margin-bottom: 10px;"><p> Selecionar Anexos </p> </label>
             <input type="file" name="arquivos" multiple> <!-- Input para múltiplos arquivos -->
-
         </div>
 
         <button type="submit" class="btn btn-primary">Salvar</button>
-        <!-- Botão Cancelar redirecionando para a página de informações do aluno -->
-        <a href="{% url 'aluno_info' aluno.pk %}" class="btn btn-secondary">Cancelar</a>
+
+        <!-- Botão Cancelar redirecionando para a página de informações correta -->
+        <a href="
+            {% if aluno %}{% url 'aluno_info' aluno.pk %}
+            {% elif professor %}{% url 'professor_info' professor.pk %}
+            {% elif equipe %}{% url 'equipe_info' equipe.pk %}
+            {% elif disciplina %}{% url 'disciplina_info' disciplina.pk %}
+            {% endif %}" class="btn btn-secondary">Cancelar</a>
     </form>
 
     <h2>Anexos existentes</h2>

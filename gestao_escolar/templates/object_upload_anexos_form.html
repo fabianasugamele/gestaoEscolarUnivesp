@@ -6,7 +6,13 @@
 {% endblock page_title %}
 
 {% block content %}
-    <h1>Upload de Anexos: {{ object.nome }}</h1>
+    <h1>Upload de Anexos:
+        {% if aluno %} {{ aluno.nome }}
+        {% elif professor %} {{ professor.nome }}
+        {% elif equipe %} {{ equipe.nome }}
+        {% elif disciplina %} {{ disciplina.nome }}
+        {% endif %}
+    </h1>
 
     <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
@@ -18,27 +24,32 @@
         </div>
 
         <div class="form-group" style="margin-bottom: 20px;">
-            <label for="arquivos" style="display: block; margin-bottom: 10px;">
-                <p> Selecionar Anexos </p>
-            </label>
+            <label for="arquivos" style="display: block; margin-bottom: 10px;"><p> Selecionar Anexos </p> </label>
             <input type="file" name="arquivos" multiple> <!-- Input para múltiplos arquivos -->
         </div>
 
         <button type="submit" class="btn btn-primary">Salvar</button>
-        <!-- Botão Cancelar redirecionando para a página de informações do objeto (aluno/professor/equipe) -->
-        <a href="{% url object_url_name object.pk %}" class="btn btn-secondary">Cancelar</a>
+
+        <!-- Botão Cancelar redirecionando para a página de informações correta -->
+        <a href="
+            {% if aluno %}{% url 'aluno_info' aluno.pk %}
+            {% elif professor %}{% url 'professor_info' professor.pk %}
+            {% elif equipe %}{% url 'equipe_info' equipe.pk %}
+            {% elif disciplina %}{% url 'disciplina_info' disciplina.pk %}
+            {% endif %}" class="btn btn-secondary">Cancelar</a>
     </form>
 
     <h2>Anexos existentes</h2>
-    <ul style="list-style-type: none; padding-left: 0;">
+    <ul>
         {% for anexo in anexos %}
-            <li style="margin-bottom: 15px;"> <!-- Espaçamento aumentado entre as linhas -->
-                {{ anexo.tipo_documento }}: <a href="{{ anexo.arquivo.url }}">{{ anexo.arquivo.name }}</a>
-                <!-- Formulário de exclusão -->
-                <form method="POST" action="{% url 'excluir_anexo' anexo.pk %}" style="display:inline;">
+            <li>
+                {{ anexo.tipo_documento }}:
+                <a href="{{ anexo.arquivo.url }}">{{ anexo.arquivo.name }}</a>
+
+                <!-- Botão para excluir o anexo -->
+                <form action="{% url 'excluir_anexo' anexo.pk %}" method="POST" style="display:inline; margin-left: 10px;">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-danger btn-sm"
-                            onclick="return confirm('Tem certeza que deseja excluir este anexo?');">Excluir</button>
+                    <button type="submit" class="btn btn-danger" style="font-size: 12px; padding: 2px 10px;" onclick="return confirm('Tem certeza que deseja excluir este anexo?');">Excluir</button>
                 </form>
             </li>
         {% empty %}
