@@ -19,25 +19,18 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
 
 # Application definition
 
-DJANGO_APPS = [
+INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-]
-
-THIRD_PARTY_APPS = [
+    'django_select2',
     'crispy_forms',
     'crispy_bootstrap5',
-]
-
-MY_APPS = [
     'gestao_escolar.apps.GestaoEscolarConfig',
-    ]
-    
-INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + MY_APPS
+]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

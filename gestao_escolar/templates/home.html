@@ -32,12 +32,12 @@
       <div class="row justify-content-center">
         <!-- Botões de Turmas e Disciplinas (ocupando a mesma largura dos de cima) -->
         <div class="col-12 col-md-4 mb-2">
-          <button class="btn btn-primary w-100 p-4" style="height: 120px;" onclick="window.location.href='#'">
+          <button class="btn btn-primary w-100 p-4" style="height: 120px;" onclick="window.location.href='{% url "turmas_list" %}'">
             <i class="bi bi-journal" style="font-size: 2rem;"></i><br>Turmas
           </button>
         </div>
         <div class="col-12 col-md-4 mb-2">
-          <button class="btn btn-primary w-100 p-4" style="height: 120px;" onclick="window.location.href='#'">
+          <button class="btn btn-primary w-100 p-4" style="height: 120px;" onclick="window.location.href='{% url "disciplinas_list" %}'">
             <i class="bi bi-book-fill" style="font-size: 2rem;"></i><br>Disciplinas
           </button>
         </div>
