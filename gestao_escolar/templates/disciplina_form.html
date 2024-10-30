@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+
+{% block page_title %}
+    {% if disciplina.pk %}
+        Atualizar Disciplina
+    {% else %}
+        Cadastrar Disciplina
+    {% endif %}
+
+{% endblock page_title %}
+
+{% block content %}
+    {% if disciplina.pk %}
+        <h1>Atualizar Disciplina</h1>
+    {% else %}
+        <h1>Cadastrar Disciplina</h1>
+    {% endif %}
+
+<form method="POST">
+    {% csrf_token %}
+    {{ form|crispy }}
+
+    <button type="submit" class="btn btn-primary">Salvar</button>
+    <a href="{% url 'disciplinas_list'%}" class="btn btn-secondary">Cancelar</a>
+</form>
+
+{% endblock content %}
+
+

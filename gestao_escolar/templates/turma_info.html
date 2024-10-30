@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_title %}
+    Info. Turma: {{ turma.codigo_turma }}
+{% endblock page_title %}
+
+{% block content %}
+    <h1>Informações: {{ turma.nome_turma }} </h1>
+
+    <p><strong>Nome da Turma:</strong> {{ turma.nome_turma }}</p>
+    <p><strong>Serie:</strong> {{ turma.serie }}</p>
+    <p><strong>Ano da Turma:</strong> {{ turma.ano_turma }}</p>
+
+    <hr>
+
+    <!-- Tabela de Alunos -->
+    <h2>Lista de Alunos</h2>
+    {% if turma.alunos.exists %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome do Aluno</th>
+                    <th>Idade</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for aluno in turma.alunos.all %}
+                    <tr>
+                        <td>{{ aluno.nome }}</td>
+                        <td>{{ aluno.id_num }}</td>
+                        <td>{{ aluno.idade }} anos</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Nenhum aluno matriculado nesta turma.</p>
+    {% endif %}
+
+    <hr>
+
+    <!-- Tabela de Professores -->
+    <h2>Lista de Professores</h2>
+    {% if turma.professores.exists %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Nome do Professor</th>
+                    <th>Disciplinas</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for professor in turma.professores.all %}
+                    <tr>
+                        <td>{{ professor.nome }}</td>
+                        <td>
+                            {% for disciplina in professor.disciplinas_professor.all %}
+                                {{ disciplina.nome }}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Nenhum professor associado a esta turma.</p>
+    {% endif %}
+
+    <a href="{% url 'turma_update' turma.pk %}" class="btn btn-warning">Atualizar Turma</a>
+    <a href="{% url 'turmas_list' %}" class="btn btn-secondary">Voltar para a Lista de Turmas</a>
+
+{% endblock %}

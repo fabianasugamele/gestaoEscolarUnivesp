@@ -69,27 +69,37 @@
     <h2>Histórico de Atendimentos</h2>
 
     {% if aluno.atendimentos.exists %}
-        <table class="table table-striped">
-            <thead>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Data</th>
+                <th>Descrição</th>
+                <th>Responsável</th>
+                <th>Função</th> <!-- Nova coluna para a função -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for atendimento in aluno.atendimentos.all %}
                 <tr>
-                    <th>Data</th>
-                    <th>Descrição</th>
-                    <th>Responsável</th>
+                    <td>{{ atendimento.data_atendimento }}</td>
+                    <td>{{ atendimento.tipo_atendimento }}</td>
+                    <td>{{ atendimento.responsavel_atendimento }}</td>
+                    <td>
+                        {% if atendimento.responsavel_atendimento.funcao_responsavel %}
+                            {{ atendimento.responsavel_atendimento.funcao_responsavel }}
+                        {% else %}
+                            Professor
+                        {% endif %}
+                    </td> <!-- Exibe a função -->
                 </tr>
-            </thead>
-            <tbody>
-                {% for atendimento in aluno.atendimentos.all %}
-                    <tr>
-                        <td>{{ atendimento.data_atendimento }}</td>
-                        <td>{{ atendimento.descricao }}</td>
-                        <td>{{ atendimento.responsavel.nome }}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <p>Nenhum atendimento registrado para este aluno.</p>
-    {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>Nenhum atendimento registrado para este aluno.</p>
+{% endif %}
+
+<a href="{% url 'atendimento_create' aluno.pk %}" class="btn btn-primary">Criar Atendimento</a>
 
     <hr>
 

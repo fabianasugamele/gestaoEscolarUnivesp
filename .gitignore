@@ -1,4 +1,5 @@
 .venv/*
+.env
 .idea/*
 __pycache__/*
 gestao_escolar/__pycache__/*

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_title %}
+    Info. Disciplina
+{% endblock page_title %}
+
+{% block content %}
+    <h1>Informações: {{ disciplina.nome_disciplina }}</h1>
+
+    <p><strong>Código:</strong> {{ disciplina.codigo_disciplina }}</p>
+    <p><strong>Série:</strong> {{ disciplina.serie }}</p>
+    <p><strong>Ano:</strong> {{ disciplina.ano_disciplina }}</p>
+    <p><strong>Professor:</strong>
+        {% if disciplina.professor %}
+            {{ disciplina.professor.nome }}
+        {% else %}
+            Não atribuído
+        {% endif %}
+    </p>
+
+    <hr>
+
+    <!-- Tabela de Anexos -->
+    <h2>Anexos</h2>
+
+    {% if anexos %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Tipo de Documento</th>
+                    <th>Arquivo</th>
+                    <th>Download</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for anexo in anexos %}
+                    <tr>
+                        <td>{{ anexo.tipo_documento }}</td>
+                        <td>{{ anexo.arquivo.name }}</td>
+                        <td><a href="{{ anexo.arquivo.url }}" download>Download</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Nenhum anexo disponível para esta disciplina.</p>
+    {% endif %}
+
+    <a href="{% url 'disciplina_upload_anexos' disciplina.pk %}" class="btn btn-primary">Atualizar Anexos</a>
+    <a href="{% url 'disciplina_update' disciplina.pk %}" class="btn btn-warning">Atualizar Disciplina</a>
+    <a href="{% url 'disciplinas_list' %}" class="btn btn-secondary">Voltar para a Lista de Disciplinas</a>
+
+{% endblock %}
