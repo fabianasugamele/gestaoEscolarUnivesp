@@ -6,35 +6,57 @@
 {% endblock page_title %}
 
 {% block content %}
-    <h1>Upload de Anexos: {{ aluno.nome }}</h1>
+    <h1>Upload de Anexos:
+        {% if aluno %} {{ aluno.nome }}
+        {% elif professor %} {{ professor.nome }}
+        {% elif equipe %} {{ equipe.nome }}
+        {% elif disciplina %} {{ disciplina.nome }}
+        {% endif %}
+    </h1>
 
     <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.non_field_errors }}
 
-        <!-- Espaçamento aumentado entre os campos -->
         <div class="form-group" style="margin-bottom: 20px;">
-            {{ form.tipo_documento|as_crispy_field }} <!-- Renderiza o campo Tipo de Documento com label -->
+            {{ form.tipo_documento|as_crispy_field }}
         </div>
 
         <div class="form-group" style="margin-bottom: 20px;">
-            <label for="arquivos"  style="display: block; margin-bottom: 10px;"><p> Selecionar Anexos </p> </label>
-            <input type="file" name="arquivos" multiple> <!-- Input para múltiplos arquivos -->
-
+            <label for="arquivos" style="display: block; margin-bottom: 10px;">
+                <p>Selecionar Anexos</p>
+            </label>
+            <input type="file" name="arquivos" multiple>
         </div>
 
         <button type="submit" class="btn btn-primary">Salvar</button>
-        <!-- Botão Cancelar redirecionando para a página de informações do aluno -->
-        <a href="{% url 'aluno_info' aluno.pk %}" class="btn btn-secondary">Cancelar</a>
+
+        <a href="
+            {% if aluno %}{% url 'aluno_info' aluno.pk %}
+            {% elif professor %}{% url 'professor_info' professor.pk %}
+            {% elif equipe %}{% url 'equipe_info' equipe.pk %}
+            {% elif disciplina %}{% url 'disciplina_info' disciplina.pk %}
+            {% endif %}" class="btn btn-secondary">Cancelar</a>
     </form>
 
     <h2>Anexos existentes</h2>
     <ul>
         {% for anexo in anexos %}
-            <li>{{ anexo.tipo_documento }}: <a href="{{ anexo.arquivo.url }}">{{ anexo.arquivo.name }}</a></li>
+            <li>
+                {{ anexo.tipo_documento }}: <a href="{{ anexo.arquivo.url }}">{{ anexo.arquivo.name }}</a>
+                <form action="{% url 'excluir_anexo' pk=anexo.pk %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    {% if atendimento %}
+                        <!-- Campos ocultos para enviar os parâmetros aluno_pk e atendimento_pk -->
+                        <input type="hidden" name="aluno_pk" value="{{ aluno.pk }}">
+                        <input type="hidden" name="atendimento_pk" value="{{ atendimento.pk }}">
+                    {% endif %}
+                    <button type="submit" class="btn btn-danger btn-sm">Excluir</button>
+                </form>
+            </li>
         {% empty %}
             <li>Nenhum anexo disponível.</li>
         {% endfor %}
     </ul>
-
 {% endblock %}
+

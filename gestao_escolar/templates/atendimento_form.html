@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block page_title %}
+    {% if atendimento.pk %}
+        Atualizar Atendimento
+    {% else %}
+        Criar Novo Atendimento
+    {% endif %}
+{% endblock page_title %}
+
+{% block content %}
+    <h2>
+        {% if atendimento.pk %}
+            Atualizar Atendimento {{ atendimento.codigo_atendimento }}
+        {% else %}
+            Criar Novo Atendimento para {{ aluno.nome }}
+        {% endif %}
+    </h2>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert {% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        {{ form|crispy }}
+
+        <button type="submit" class="btn btn-primary">Salvar Atendimento</button>
+
+        {% if atendimento.pk %}
+            <a href="{% url 'atendimento_info' pk=atendimento.aluno.pk atendimento_pk=atendimento.pk %}" class="btn btn-secondary">Cancelar</a>
+        {% else %}
+            <a href="{% url 'aluno_info' pk=aluno.pk %}" class="btn btn-secondary">Cancelar</a>
+        {% endif %}
+    </form>
+{% endblock content %}
+

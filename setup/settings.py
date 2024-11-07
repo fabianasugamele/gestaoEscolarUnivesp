@@ -19,25 +19,19 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
 
 # Application definition
 
-DJANGO_APPS = [
+INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-]
-
-THIRD_PARTY_APPS = [
+    'django_select2',
     'crispy_forms',
     'crispy_bootstrap5',
-]
-
-MY_APPS = [
+    'rolepermissions',
     'gestao_escolar.apps.GestaoEscolarConfig',
-    ]
-    
-INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + MY_APPS
+]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -113,7 +107,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
@@ -144,4 +137,12 @@ STATICFILES_DIRS = [
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+# Configurando permissoes de acesso
+# Permissões de acesso
 
+ROLEPERMISSIONS_MODULE = 'gestao_escolar.roles'
+
+
+LOGIN_URL = '/login/'
+
+LOGIN_REDIRECT_URL = '/'

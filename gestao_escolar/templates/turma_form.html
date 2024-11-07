@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+<head>
+    <!-- Adicionando o CSS e JS do Select2 -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <!-- Adicionando o jQuery se ele não estiver incluído -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+{% block page_title %}
+    {% if turma.pk %}
+        Atualizar informações da turma
+    {% else %}
+        Cadastrar nova turma
+    {% endif %}
+{% endblock page_title %}
+
+{% block content %}
+    <h1>{{ turma.pk|yesno:"Atualizar informações da turma,Cadastrar nova turma" }}</h1>
+
+    <form method="POST">
+        {% csrf_token %}
+        {{ form|crispy }}
+
+        <button type="submit" class="btn btn-primary">Salvar</button>
+        <a href="{% url 'turmas_list' %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+
+    <script>
+        // Inicializando o Select2 para os campos de alunos e disciplinas
+        $(document).ready(function() {
+            $('#id_alunos').select2({
+                placeholder: 'Selecione os alunos',
+                allowClear: true,
+                width: '100%'  // Garantir que o campo expanda
+            });
+            $('#id_disciplinas').select2({
+                placeholder: 'Selecione as disciplinas',
+                allowClear: true,
+                width: '100%'  // Garantir que o campo expanda
+            });
+        });
+    </script>
+{% endblock %}
