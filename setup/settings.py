@@ -14,8 +14,9 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
+#ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
 
+ALLOWED_HOSTS = ["127.0.0.1", ".vercel.app", ".now.sh"]
 
 # Application definition
 
@@ -131,6 +132,8 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'gestao_escolar/static'),
 ]
+
+STATIC_ROOT = os.path.join(BASE_DIR, "gestao_escolar/staticfiles")
 
 # Configurando diretorios
 
