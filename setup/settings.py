@@ -20,7 +20,8 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 
 #ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
 
-ALLOWED_HOSTS = ["127.0.0.1", ".vercel.app", ".now.sh"]
+ALLOWED_HOSTS = ['gestaoescolarunivesp.onrender.com', '127.0.0.1', '.vercel.app', '.now.sh']
+
 
 # Application definition
 
