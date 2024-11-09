@@ -73,7 +73,7 @@ WSGI_APPLICATION = 'setup.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        default=os.getenv('DATABASE_URL', config('DATABASE_URL', default='postgres://USER:PASSWORD@HOST:PORT/NAME'))
+        default=os.getenv('DATABASE_URL')
     )
 }
 
